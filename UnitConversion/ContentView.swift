@@ -9,8 +9,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    var unitList: [String] = ["metres", "kilometres", "feet", "yards", "miles"]
-
+    let unitList: [(UnitLength, String)] = [
+        (.meters, "metres"),
+        (.kilometers, "kilometres"),
+        (.feet, "feet"),
+        (.yards, "yards"),
+        (.miles, "miles")
+    ]
+    
     @State private var fromUnit: Int = 0
     @State private var toUnit: Int = 2
     @State private var originalValue: String = "1.0"
@@ -21,36 +27,9 @@ struct ContentView: View {
         
         let value = Double(originalValue) ?? 1.0
         
-        switch fromUnit {
-        case 0:
-            initialUnitValue = Measurement(value: value, unit: UnitLength.meters)
-        case 1:
-            initialUnitValue = Measurement(value: value, unit: UnitLength.kilometers)
-        case 2:
-            initialUnitValue = Measurement(value: value, unit: UnitLength.feet)
-        case 3:
-            initialUnitValue = Measurement(value: value, unit: UnitLength.yards)
-        case 4:
-            fallthrough
-        default:
-            // Assume miles if case is 4 or no value specified
-            initialUnitValue = Measurement(value: value, unit: UnitLength.miles)
-        }
+        initialUnitValue = Measurement(value: value, unit: unitList[fromUnit].0)
+        calculatedValue = initialUnitValue.converted(to: unitList[toUnit].0)
         
-        switch toUnit {
-        case 0:
-            calculatedValue = initialUnitValue.converted(to: UnitLength.meters)
-        case 1:
-            calculatedValue = initialUnitValue.converted(to: UnitLength.kilometers)
-        case 2:
-            calculatedValue = initialUnitValue.converted(to: UnitLength.feet)
-        case 3:
-            calculatedValue = initialUnitValue.converted(to: UnitLength.yards)
-        case 4:
-            fallthrough
-        default:
-            calculatedValue = initialUnitValue.converted(to: UnitLength.miles)
-        }
         return calculatedValue.value
     }
     
@@ -67,7 +46,7 @@ struct ContentView: View {
                 Section(header: Text("Convert from")) {
                     Picker("Convert from", selection: $fromUnit) {
                         ForEach(0..<unitList.count) {
-                            Text("\(self.unitList[$0])")
+                            Text("\(self.unitList[$0].1)")
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
@@ -78,7 +57,7 @@ struct ContentView: View {
                 Section(header: Text("Convert to")) {
                     Picker("Convert to", selection: $toUnit) {
                         ForEach(0..<unitList.count) {
-                            Text("\(self.unitList[$0])")
+                            Text("\(self.unitList[$0].1)")
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
